@@ -3,271 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ONYX ARCHITECT - by vivi gioncyn</title>
+    <title>ONYX ARCHITECT PRO v4.5 - Vivi Gioncyn</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#05070a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1005/1005141.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Montserrat:wght@900&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Fira+Code&family=Playball&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ext-language_tools.min.js"></script>
+
     <style>
-        :root { --v-bg: #0d1117; --v-panel: #161b22; --v-accent: #58a6ff; --v-text: #c9d1d9; }
+        :root { --v-bg: #05070a; --v-panel: #0d1117; --v-accent: #7aa2f7; --v-text: #a9b1d6; --v-gold: #d4af37; --v-gold-light: #f1d592; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: var(--v-bg); color: var(--v-text); display: flex; flex-direction: column; font-family: 'Fira Code', monospace; position: fixed; }
+
+        header { background: var(--v-panel); padding: 12px 15px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; }
         
-        /* FIX: UI MENGGUNAKAN DVH UNTUK MENCEGAH TERPOTONG BROWSER MOBILE */
-        html, body { width: 100%; height: 100dvh; overflow: hidden; position: fixed; background: var(--v-bg); color: var(--v-text); font-family: 'Fira Code', monospace; display: flex; flex-direction: column; }
+        .brand-wrapper { display: flex; flex-direction: column; line-height: 1; }
+        .brand-title { 
+            font-family: 'Cinzel', serif; 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: var(--v-gold); 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            background: linear-gradient(to right, var(--v-gold), #fff, var(--v-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+        .signature { 
+            font-family: 'Playball', cursive; 
+            font-size: 11px; 
+            color: #fff; 
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+        }
 
-        header { background: var(--v-panel); padding: 12px 18px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .brand-container { display: flex; flex-direction: column; }
-        .brand-title { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 900; color: white; letter-spacing: -0.5px; text-transform: uppercase; line-height: 1; }
-        .brand-sig { font-size: 7px; color: #58a6ff; font-weight: 500; text-transform: lowercase; letter-spacing: 1px; margin-top: 4px; opacity: 0.8; display: flex; align-items: center; gap: 5px; }
-        .brand-sig::before { content: ""; width: 10px; height: 1px; background: #58a6ff; display: inline-block; }
+        #tab-bar { background: var(--v-panel); display: flex; overflow-x: auto; border-bottom: 1px solid #30363d; scrollbar-width: none; flex-shrink: 0; }
+        .tab { padding: 8px 12px; font-size: 10px; color: #8b949e; border-right: 1px solid #30363d; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .tab.active { background: #161b22; color: var(--v-accent); border-bottom: 2px solid var(--v-accent); }
+        .close-tab { font-size: 16px; color: #ef4444; padding: 2px 6px; font-weight: bold; cursor: pointer; }
 
-        .tab-bar { background: var(--v-panel); height: 40px; display: flex; overflow-x: auto; border-bottom: 1px solid #30363d; flex-shrink: 0; scrollbar-width: none; }
-        .tab { padding: 0 12px; display: flex; align-items: center; font-size: 10px; font-weight: bold; color: #8b949e; white-space: nowrap; border-right: 1px solid #30363d; text-transform: uppercase; cursor: pointer; gap: 8px; }
-        .tab.active { background: var(--v-bg); color: var(--v-accent); border-bottom: 2px solid var(--v-accent); }
-        .btn-close-tab { color: #f85149; font-size: 14px; opacity: 0.7; }
+        #main-container { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        #editor { flex: 1; font-size: 14px !important; width: 100%; }
 
-        .editor-wrapper { flex: 1; display: flex; overflow: hidden; position: relative; background: var(--v-bg); }
-        .line-numbers { width: 35px; background: #0d1117; color: #484f58; padding-top: 15px; text-align: right; padding-right: 5px; border-right: 1px solid #30363d; font-size: 11px; line-height: 20px; overflow: hidden; }
-        .scroll-container { flex: 1; position: relative; overflow: auto; }
-        #highlighting { position: absolute; top: 0; left: 0; padding: 15px; width: 100%; min-width: 800px; pointer-events: none; white-space: pre; font-size: 13px; line-height: 20px; z-index: 1; }
-        #editor { position: relative; width: 100%; min-width: 800px; min-height: 100%; padding: 15px; background: transparent; color: transparent; font-size: 13px; line-height: 20px; white-space: pre; border: none; outline: none; resize: none; caret-color: white; z-index: 2; -webkit-text-fill-color: transparent; }
+        #preview-container { display: none; position: fixed; inset: 0; background: white; z-index: 1000; flex-direction: column; }
+        #preview-header { background: #1c2128; color: white; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #30363d; }
+        #preview-frame { flex: 1; width: 100%; border: none; background: white; }
 
-        /* KEYBOARD PEMBANTU (SYMBOLS) */
-        .helper-bar { background: #161b22; height: 45px; display: flex; align-items: center; gap: 5px; padding: 0 10px; overflow-x: auto; border-top: 1px solid #30363d; flex-shrink: 0; scrollbar-width: none; }
-        .helper-btn { min-width: 40px; height: 32px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #58a6ff; font-size: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        #custom-search-bar { display: none; background: #1c2128; padding: 10px; border-bottom: 1px solid #30363d; gap: 8px; align-items: center; position: absolute; top: 0; left: 0; right: 0; z-index: 50; }
+        .search-input { flex: 1; background: #05070a; border: 1px solid #30363d; color: white; padding: 8px; border-radius: 4px; font-size: 12px; outline: none; }
+        .nav-btn { background: #30363d; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; }
 
-        footer { background: var(--v-panel); height: 70px; display: flex; align-items: center; justify-content: space-around; border-top: 1px solid #30363d; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
-        .tool-btn { display: flex; flex-direction: column; align-items: center; font-size: 8px; font-weight: bold; color: #8b949e; text-transform: uppercase; gap: 4px; border: none; background: none; }
+        .quick-tools { background: var(--v-panel); display: flex; overflow-x: auto; padding: 8px 5px; gap: 6px; border-top: 1px solid #30363d; flex-shrink: 0; }
+        .q-btn { background: #1c2128; color: white; border: 1px solid #444c56; flex: 1; min-width: 42px; height: 40px; border-radius: 6px; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
-        /* MODAL & UI LAINNYA TETAP PERTAHANKAN LOGIKA SEBELUMNYA */
-        .v-modal { display: none; position: fixed; inset: 0; background: rgba(13, 17, 23, 0.98); backdrop-filter: blur(20px); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
-        .v-box { background: #161b22; width: 100%; max-width: 360px; border-radius: 24px; padding: 25px; border: 1px solid #30363d; }
-        .v-input { background: #0d1117; border: 1px solid #30363d; border-radius: 12px; padding: 15px; color: white; width: 100%; margin-bottom: 15px; outline: none; font-size: 12px; font-family: 'Fira Code'; }
-        
-        .berkas-group { margin-bottom: 10px; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; }
-        .berkas-header { background: #21262d; padding: 12px; font-size: 10px; font-weight: 900; color: #c9d1d9; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
-        .file-container { display: none; background: #0d1117; }
-        .file-item { padding: 12px; border-bottom: 1px solid #21262d; }
-        .action-link { font-size: 8px; font-weight: 900; text-transform: uppercase; cursor: pointer; margin-right: 12px; }
+        footer { background: var(--v-panel); height: 55px; display: flex; align-items: center; justify-content: space-around; border-top: 1px solid #30363d; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+        .tool-btn { display: flex; flex-direction: column; align-items: center; font-size: 8px; color: #8b949e; border: none; background: none; }
 
-        #v-toast { display: none; position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #58a6ff; color: white; padding: 10px 20px; border-radius: 50px; font-size: 10px; font-weight: 900; z-index: 1000; }
+        #onyx-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #161b22; border: 1px solid var(--v-gold); color: white; padding: 12px 24px; border-radius: 50px; font-size: 10px; font-weight: bold; z-index: 10000; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 1px; }
+
+        .v-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+        .v-box { background: #161b22; width: 100%; max-width: 320px; border-radius: 12px; padding: 20px; border: 1px solid var(--v-gold); }
+
+        .gudang-list { max-height: 300px; overflow-y: auto; margin-top: 10px; }
+        .folder-header { background: #0d1117; border: 1px solid var(--v-gold); padding: 12px; border-radius: 8px; margin-top: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .file-item { background: #1c2128; border: 1px solid #30363d; padding: 10px; margin-left: 15px; margin-top: 5px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .folder-content { display: none; margin-bottom: 10px; }
     </style>
 </head>
-<body>
+<body onclick="hideBrowserUI()">
 
-    <header onclick="openModal('modal-about')">
-        <div class="brand-container">
-            <div class="brand-title">ONYX ARCHITECT</div>
-            <div class="brand-sig">by vivi gioncyn</div>
+    <div id="onyx-toast"></div>
+
+    <header>
+        <div class="brand-wrapper">
+            <div class="brand-title">Onyx Architect Pro</div>
+            <div class="signature"><span style="font-family:'Montserrat'; font-size:6px; font-weight:bold; color:#7aa2f7; vertical-align:middle; margin-right:4px;">BY</span> Vivi Gioncyn</div>
         </div>
-        <button onclick="event.stopPropagation(); executeRun();" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-black text-[9px] uppercase">Run Project</button>
+        <div class="flex gap-2">
+            <button onclick="changeTheme()" class="bg-purple-700 text-white px-3 py-1.5 rounded text-[9px] font-bold uppercase">🎨 Tema</button>
+            <button onclick="toggleSearch()" id="btn-cari" class="bg-gray-800 text-white px-3 py-1.5 rounded text-[9px] font-bold uppercase">🔍 Cari</button>
+            <button onclick="runFullCode()" class="bg-blue-600 text-white px-4 py-1.5 rounded text-[9px] font-black uppercase tracking-widest">RUN</button>
+        </div>
     </header>
 
-    <div class="tab-bar" id="tab-list"></div>
+    <div id="tab-bar"></div>
 
-    <div class="editor-wrapper">
-        <div id="line-nums" class="line-numbers">1</div>
-        <div class="scroll-container" id="main-scroll" onscroll="syncScroll()">
-            <pre id="highlighting" aria-hidden="true"><code class="language-html" id="highlight-content"></code></pre>
-            <textarea id="editor" spellcheck="false" oninput="updateCore()" onkeydown="handleTab(event)"></textarea>
+    <div id="main-container">
+        <div id="custom-search-bar">
+            <input type="text" id="search-field" class="search-input" placeholder="Cari teks..." oninput="findNext(true)">
+            <button class="nav-btn" onclick="findPrev()">&lt;</button>
+            <button class="nav-btn" onclick="findNext()">&gt;</button>
+            <button class="nav-btn text-red-500" onclick="toggleSearch()">×</button>
         </div>
+        <div id="editor"></div>
     </div>
 
-    <div class="helper-bar">
-        <button class="helper-btn" onclick="insertSymbol('<')">&lt;</button>
-        <button class="helper-btn" onclick="insertSymbol('>')">&gt;</button>
-        <button class="helper-btn" onclick="insertSymbol('{')">{</button>
-        <button class="helper-btn" onclick="insertSymbol('}')">}</button>
-        <button class="helper-btn" onclick="insertSymbol('(')">(</button>
-        <button class="helper-btn" onclick="insertSymbol(')')">)</button>
-        <button class="helper-btn" onclick="insertSymbol('[')">[</button>
-        <button class="helper-btn" onclick="insertSymbol(']')">]</button>
-        <button class="helper-btn" onclick="insertSymbol(';')">;</button>
-        <button class="helper-btn" onclick="insertSymbol('=')">=</button>
-        <button class="helper-btn" onclick="insertSymbol('\"')">"</button>
-        <button class="helper-btn" onclick="insertSymbol('/')">/</button>
+    <div id="preview-container">
+        <div id="preview-header">
+            <span class="font-bold text-[10px] tracking-tighter">PREVIEW: ONYX ENGINE</span>
+            <button onclick="closePreview()" class="bg-red-600 px-4 py-1.5 rounded text-[10px] font-black uppercase">Tutup</button>
+        </div>
+        <iframe id="preview-frame"></iframe>
+    </div>
+
+    <div class="quick-tools">
+        <button class="q-btn" onclick="insertCode('<')">&lt;</button>
+        <button class="q-btn" onclick="insertCode('>')">&gt;</button>
+        <button class="q-btn" onclick="insertCode('/')">/</button>
+        <button class="q-btn" onclick="insertCode('\"')">"</button>
+        <button class="q-btn" onclick="insertCode('=')">=</button>
+        <button class="q-btn" onclick="insertCode(':')">:</button>
+        <button class="q-btn" onclick="insertCode('{')">{</button>
+        <button class="q-btn" onclick="insertCode('}')">}</button>
+        <button class="q-btn" onclick="insertCode(';')">;</button>
     </div>
 
     <footer>
-        <button onclick="openModal('modal-new-file')" class="tool-btn"><span>➕</span><span>Baru</span></button>
-        <button onclick="startSaveFlow()" class="tool-btn"><span>💾</span><span>Simpan</span></button>
-        <button onclick="downloadFile()" class="tool-btn"><span>📥</span><span>Unduh</span></button>
-        <button onclick="showGudang()" class="tool-btn"><span>📦</span><span>Gudang</span></button>
-        <button onclick="openModal('modal-confirm-clear')" class="tool-btn text-red-500"><span>🗑️</span><span>Hapus</span></button>
+        <button onclick="openModal('modal-new')" class="tool-btn"><span>➕</span><span>Baru</span></button>
+        <button onclick="openModal('modal-save-choice')" class="tool-btn"><span>💾</span><span>Simpan</span></button>
+        <button onclick="openFromInternal()" class="tool-btn"><span>📁</span><span>Buka</span></button>
+        <button onclick="openModal('modal-gudang')" class="tool-btn"><span>📦</span><span>Gudang</span></button>
+        <button onclick="openModal('modal-delete')" class="tool-btn text-red-500"><span>🗑️</span><span>Hapus</span></button>
     </footer>
 
-    <div id="v-toast">BERHASIL!</div>
+    <div id="modal-save-choice" class="v-modal"><div class="v-box">
+        <h3 class="text-white text-[11px] font-black mb-4 text-center">LOKASI PENYIMPANAN</h3>
+        <button onclick="prepareSaveGudang()" class="w-full bg-blue-600 text-white py-3 rounded mb-2 text-[10px] font-bold uppercase">1. Simpan ke Gudang Berkas</button>
+        <button onclick="saveToPhone()" class="w-full bg-gray-700 text-white py-3 rounded mb-4 text-[10px] font-bold uppercase">2. Simpan ke Penyimpanan Ponsel</button>
+        <button onclick="closeModal('modal-save-choice')" class="w-full text-gray-500 text-[10px] font-bold">BATAL</button>
+    </div></div>
 
-    <div id="modal-gudang" class="v-modal">
-        <div class="v-box h-[80dvh] flex flex-col">
-            <h2 class="text-white font-black text-[11px] mb-4 uppercase text-blue-400 text-center italic">Gudang Berkas</h2>
-            <input type="text" id="search-vault" class="v-input" placeholder="CARI BERKAS..." oninput="renderGudang()">
-            <div id="gudang-list" class="flex-grow overflow-y-auto"></div>
-            <button onclick="closeModal('modal-gudang')" class="mt-4 text-[9px] text-gray-600 font-bold uppercase">Keluar</button>
+    <div id="modal-save-gudang" class="v-modal"><div class="v-box">
+        <h3 class="text-white text-[11px] font-black mb-2 uppercase text-center">Input Nama Folder</h3>
+        <input type="text" id="gudang-folder-name" class="bg-black border border-gray-700 w-full p-2 mb-4 rounded text-white text-xs" placeholder="Contoh: PROYEK A">
+        <div class="flex gap-2">
+            <button onclick="closeModal('modal-save-gudang')" class="flex-1 text-gray-500 text-[10px] font-bold">BATAL</button>
+            <button onclick="confirmSaveGudang()" class="flex-1 bg-green-600 text-white py-2 rounded text-[10px] font-black">KONFIRMASI</button>
         </div>
-    </div>
+    </div></div>
 
-    <div id="modal-delete-confirm" class="v-modal">
-        <div class="v-box text-center">
-            <h2 id="delete-title" class="text-red-500 font-black text-[12px] mb-2 uppercase italic">Hapus?</h2>
-            <p id="delete-target-text" class="text-[9px] text-gray-400 mb-6 uppercase font-bold italic"></p>
-            <button id="btn-confirm-delete" class="w-full bg-red-600 py-4 rounded-xl font-black text-[10px] text-white uppercase">YA, HAPUS PERMANEN</button>
-            <button onclick="closeModal('modal-delete-confirm')" class="w-full mt-3 text-gray-500 text-[9px] font-bold uppercase">BATAL</button>
+    <div id="modal-gudang" class="v-modal"><div class="v-box" style="max-width: 350px;">
+        <h3 class="text-white text-[11px] font-black mb-2 uppercase text-center">📦 Gudang Berkas</h3>
+        <input type="text" id="search-gudang" oninput="filterGudang()" class="bg-black border border-gray-700 w-full p-2 mb-2 rounded text-white text-xs" placeholder="Cari folder...">
+        <div id="gudang-list-container" class="gudang-list"></div>
+        <button onclick="closeModal('modal-gudang')" class="w-full mt-4 text-gray-500 text-[10px] font-bold">TUTUP</button>
+    </div></div>
+
+    <div id="modal-new" class="v-modal"><div class="v-box text-center">
+        <input type="text" id="new-filename" class="bg-black border border-gray-700 w-full p-2 my-3 rounded text-white text-xs" placeholder="nama_file.html">
+        <div class="flex gap-2">
+            <button onclick="closeModal('modal-new')" class="flex-1 text-gray-500 text-[10px] font-bold">BATAL</button>
+            <button onclick="addTab()" class="flex-1 bg-blue-600 text-white py-2 rounded text-[10px] font-black">BUAT</button>
         </div>
-    </div>
+    </div></div>
 
-    <div id="modal-about" class="v-modal">
-        <div class="v-box text-center">
-            <h2 class="text-white font-black text-[14px] uppercase italic">ONYX ARCHITECT</h2>
-            <p class="text-[10px] text-blue-400 mt-4 font-black uppercase">DEVELOPED BY VIVI GIONCYN</p>
-            <button onclick="closeModal('modal-about')" class="mt-6 text-gray-500 text-[9px] font-bold uppercase">Kembali</button>
+    <div id="modal-delete" class="v-modal"><div class="v-box text-center">
+        <h3 class="text-red-500 text-[12px] font-black">HAPUS EDITOR?</h3>
+        <div class="flex gap-2 mt-4">
+            <button onclick="closeModal('modal-delete')" class="flex-1 text-gray-500 text-[10px] font-bold">BATAL</button>
+            <button onclick="clearCurrentEditor()" class="flex-1 bg-red-600 text-white py-2 rounded text-[10px] font-black">HAPUS</button>
         </div>
-    </div>
+    </div></div>
 
-    <div id="modal-confirm-clear" class="v-modal">
-        <div class="v-box text-center">
-            <h2 class="text-red-500 font-black text-[12px] mb-2 uppercase italic">Hapus Layar?</h2>
-            <button onclick="executeClearAll()" class="w-full bg-red-600 py-4 rounded-xl font-black text-[10px] text-white uppercase">YA, BERSIHKAN</button>
-            <button onclick="closeModal('modal-confirm-clear')" class="w-full mt-3 text-gray-500 text-[9px] font-bold uppercase">BATAL</button>
-        </div>
-    </div>
+    <input type="file" id="internal-file-input" style="display: none;" onchange="handleFileSelect(event)">
 
-    <div id="modal-new-file" class="v-modal">
-        <div class="v-box">
-            <h2 class="text-white font-black text-[10px] mb-4 uppercase text-center text-blue-400">Berkas Baru</h2>
-            <input type="text" id="input-new-filename" class="v-input" placeholder="NAMA_FILE.HTML">
-            <button onclick="executeAddNewFile()" class="w-full bg-blue-600 py-4 rounded-xl font-black text-[10px] text-white uppercase">TAMBAHKAN</button>
-            <button onclick="closeModal('modal-new-file')" class="w-full mt-2 text-gray-500 text-[8px] font-bold uppercase">BATAL</button>
-        </div>
-    </div>
-
-    <div id="modal-save-name" class="v-modal">
-        <div class="v-box">
-            <h2 class="text-white font-black text-[10px] mb-4 uppercase text-center text-blue-400">Nama File</h2>
-            <input type="text" id="input-filename" class="v-input">
-            <button onclick="saveStep2()" class="w-full bg-blue-600 py-4 rounded-xl font-black text-[10px] text-white uppercase">LANJUT</button>
-            <button onclick="closeModal('modal-save-name')" class="w-full mt-2 text-gray-500 text-[8px] font-bold uppercase">BATAL</button>
-        </div>
-    </div>
-
-    <div id="modal-save-berkas" class="v-modal">
-        <div class="v-box">
-            <h2 class="text-white font-black text-[10px] mb-4 uppercase text-center text-blue-400">Pilih Berkas</h2>
-            <input type="text" id="input-berkasname" class="v-input" placeholder="NAMA BERKAS...">
-            <div id="berkas-history" class="max-h-[150px] overflow-y-auto mb-4 border-t border-gray-800 pt-2"></div>
-            <button onclick="executeFinalSave()" class="w-full bg-green-700 py-4 rounded-xl font-black text-[10px] text-white uppercase">SIMPAN PERMANEN</button>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script>
-        let projects = [{name: 'INDEX.HTML', content: ''}];
-        let currentIdx = 0;
-        let db = JSON.parse(localStorage.getItem('onyx_storage_v31') || '{}');
+        // LOGIKA DASAR ONYX TETAP UTUH
+        let savedData = localStorage.getItem('onyx_tabs_v4');
+        let tabs = savedData ? JSON.parse(savedData) : [{ name: 'index.html', content: '\n' }];
+        let gudangData = JSON.parse(localStorage.getItem('onyx_gudang_folders')) || {}; 
+        let activeTabIndex = 0;
+        let themeIndex = 0;
+        const themes = ["tomorrow_night_bright", "monokai", "dracula", "nord_dark", "solarized_dark"];
 
-        function updateCore() {
-            let code = document.getElementById('editor').value;
-            if(code[code.length-1] == "\n") code += " ";
-            document.getElementById('highlight-content').textContent = code;
-            Prism.highlightElement(document.getElementById('highlight-content'));
-            const lines = code.split('\n');
-            document.getElementById('line-nums').innerHTML = lines.map((_, i) => i + 1).join('<br>');
-            projects[currentIdx].content = code;
+        const editor = ace.edit("editor");
+        editor.setTheme("ace/theme/tomorrow_night_bright");
+        editor.session.setMode("ace/mode/html");
+        
+        editor.setOptions({ 
+            enableBasicAutocompletion: true, 
+            enableLiveAutocompletion: true, 
+            showPrintMargin: false,
+            wrap: false,
+            hScrollBarAlwaysVisible: true,
+            vScrollBarAlwaysVisible: true,
+            scrollPastEnd: 0.8
+        });
+
+        editor.on("change", () => {
+            tabs[activeTabIndex].content = editor.getValue();
+            localStorage.setItem('onyx_tabs_v4', JSON.stringify(tabs));
+        });
+
+        function showOnyxToast(msg) {
+            const toast = document.getElementById('onyx-toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        /* FITUR TAB PENUTUP */
-        function renderTabs() {
-            document.getElementById('tab-list').innerHTML = projects.map((f, i) => `
-                <div class="tab ${i === currentIdx ? 'active' : ''}" onclick="switchTab(${i})">
-                    ${f.name}
-                    ${i !== 0 ? `<span class="btn-close-tab" onclick="event.stopPropagation(); deleteTab(${i})">×</span>` : ''}
-                </div>
-            `).join('');
+        function prepareSaveGudang() {
+            closeModal('modal-save-choice');
+            openModal('modal-save-gudang');
         }
 
-        function deleteTab(i) {
-            projects.splice(i, 1);
-            if(currentIdx >= projects.length) currentIdx = projects.length - 1;
-            renderTabs(); switchTab(currentIdx);
+        function confirmSaveGudang() {
+            const folderName = document.getElementById('gudang-folder-name').value.toUpperCase() || 'FOLDER TANPA NAMA';
+            const fileName = tabs[activeTabIndex].name;
+            const content = editor.getValue();
+            if (!gudangData[folderName]) gudangData[folderName] = [];
+            gudangData[folderName].push({ name: fileName, content: content, date: new Date().toLocaleString() });
+            localStorage.setItem('onyx_gudang_folders', JSON.stringify(gudangData));
+            showOnyxToast(`✅ TERNSIMPAN DI FOLDER: ${folderName}`);
+            closeModal('modal-save-gudang');
         }
 
-        /* LOGIKAL KEYBOARD PEMBANTU */
-        function insertSymbol(sym) {
-            const ed = document.getElementById('editor');
-            const start = ed.selectionStart;
-            const end = ed.selectionEnd;
-            ed.value = ed.value.substring(0, start) + sym + ed.value.substring(end);
-            ed.selectionStart = ed.selectionEnd = start + sym.length;
-            ed.focus();
-            updateCore();
-        }
-
-        function renderGudang() {
-            const list = document.getElementById('gudang-list');
-            const search = document.getElementById('search-vault').value.toUpperCase();
-            list.innerHTML = '';
-            Object.keys(db).forEach(berkasName => {
-                if (berkasName.includes(search)) {
-                    let html = `<div class="berkas-group">
-                        <div class="berkas-header">
-                            <div onclick="toggleFolder('${berkasName}')">📁 ${berkasName} <span class="text-[7px] opacity-50">(${db[berkasName].length} FILES)</span></div>
-                            <span onclick="actionDeleteBerkas('${berkasName}')" class="text-[7px] text-red-500 font-black border border-red-900 px-2 py-1 rounded">HAPUS BERKAS</span>
+        function renderGudangList() {
+            const container = document.getElementById('gudang-list-container');
+            container.innerHTML = '';
+            for (let folder in gudangData) {
+                const fHeader = document.createElement('div');
+                fHeader.className = 'folder-header';
+                fHeader.onclick = () => toggleFolder(folder);
+                fHeader.innerHTML = `<span>📁 ${folder}</span><span>▼</span>`;
+                const fContent = document.createElement('div');
+                fContent.id = `folder-${folder.replace(/\s/g, '-')}`;
+                fContent.className = 'folder-content';
+                gudangData[folder].forEach((file, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+                    item.innerHTML = `
+                        <div style="font-size: 10px; color: #fff;">📄 ${file.name}</div>
+                        <div class="flex gap-2">
+                            <button onclick="loadFromGudang('${folder}', ${index})" class="text-blue-400 text-[14px]">🔓</button>
+                            <button onclick="copyGudang('${folder}', ${index})" class="text-yellow-400 text-[14px]">📋</button>
+                            <button onclick="deleteGudang('${folder}', ${index})" class="text-red-500 text-[14px]">🗑️</button>
                         </div>
-                        <div id="folder-${berkasName}" class="file-container">`;
-                    db[berkasName].forEach((file, fIdx) => {
-                        html += `<div class="file-item"><div class="text-[10px] text-white font-medium">${file.name}</div><div class="mt-2 flex">
-                        <span onclick="actionBuka('${berkasName}', ${fIdx})" class="action-link text-blue-400">Buka</span>
-                        <span onclick="actionCopy('${berkasName}', ${fIdx})" class="action-link text-green-400">Copy</span>
-                        <span onclick="actionDeleteFile('${berkasName}', ${fIdx})" class="action-link text-red-500">Hapus</span>
-                        </div></div>`;
-                    });
-                    html += `</div></div>`;
-                    list.innerHTML += html;
-                }
+                    `;
+                    fContent.appendChild(item);
+                });
+                container.appendChild(fHeader);
+                container.appendChild(fContent);
+            }
+        }
+
+        function toggleFolder(name) {
+            const id = `folder-${name.replace(/\s/g, '-')}`;
+            const el = document.getElementById(id);
+            el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function loadFromGudang(folder, index) {
+            const file = gudangData[folder][index];
+            tabs.push({ name: file.name, content: file.content });
+            switchTab(tabs.length - 1);
+            closeModal('modal-gudang');
+            showOnyxToast("📂 BERKAS DIBUKA");
+        }
+
+        function deleteGudang(folder, index) {
+            gudangData[folder].splice(index, 1);
+            if (gudangData[folder].length === 0) delete gudangData[folder];
+            localStorage.setItem('onyx_gudang_folders', JSON.stringify(gudangData));
+            renderGudangList();
+            showOnyxToast("🗑️ BERKAS DIHAPUS");
+        }
+
+        function copyGudang(folder, index) {
+            navigator.clipboard.writeText(gudangData[folder][index].content);
+            showOnyxToast("📋 KODE DISALIN");
+        }
+
+        function filterGudang() {
+            const val = document.getElementById('search-gudang').value.toLowerCase();
+            document.querySelectorAll('.folder-header').forEach(el => {
+                el.style.display = el.innerText.toLowerCase().includes(val) ? 'flex' : 'none';
             });
         }
 
-        /* LOGIKA PEMISAHAN HAPUS FILE VS BERKAS */
-        function actionDeleteFile(bName, fIdx) {
-            document.getElementById('delete-title').textContent = "Hapus File?";
-            document.getElementById('delete-target-text').textContent = `FILE: ${db[bName][fIdx].name} DARI ${bName}`;
-            document.getElementById('btn-confirm-delete').onclick = () => {
-                db[bName].splice(fIdx, 1);
-                if(db[bName].length === 0) delete db[bName];
-                saveDB(); renderGudang(); closeModal('modal-delete-confirm');
-            };
-            openModal('modal-delete-confirm');
+        async function saveToPhone() {
+            const content = editor.getValue();
+            const fileName = tabs[activeTabIndex].name;
+            if ('showSaveFilePicker' in window) {
+                try {
+                    const handle = await window.showSaveFilePicker({ suggestedName: fileName, types: [{ description: 'HTML File', accept: { 'text/html': ['.html'] } }] });
+                    const writable = await handle.createWritable();
+                    await writable.write(content);
+                    await writable.close();
+                    showOnyxToast("✅ TERNSIMPAN KE PONSEL");
+                } catch (e) { }
+            } else {
+                const blob = new Blob([content], {type: 'text/html'});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = fileName;
+                a.click();
+                showOnyxToast("📥 MENGUNDUH BERKAS");
+            }
+            closeModal('modal-save-choice');
         }
 
-        function actionDeleteBerkas(bName) {
-            document.getElementById('delete-title').textContent = "Hapus Berkas?";
-            document.getElementById('delete-target-text').textContent = `FOLDER: ${bName} (SEMUA FILE AKAN HILANG)`;
-            document.getElementById('btn-confirm-delete').onclick = () => {
-                delete db[bName];
-                saveDB(); renderGudang(); closeModal('modal-delete-confirm');
-            };
-            openModal('modal-delete-confirm');
+        function renderTabs() {
+            const bar = document.getElementById('tab-bar');
+            bar.innerHTML = '';
+            tabs.forEach((tab, index) => {
+                const div = document.createElement('div');
+                div.className = `tab ${index === activeTabIndex ? 'active' : ''}`;
+                div.onclick = () => switchTab(index);
+                div.innerHTML = `<span>${tab.name}</span> <span class="close-tab" onclick="removeTab(event, ${index})">×</span>`;
+                bar.appendChild(div);
+            });
         }
-
-        function actionBuka(bName, fIdx) { projects = JSON.parse(JSON.stringify(db[bName])); currentIdx = fIdx; renderTabs(); switchTab(fIdx); closeModal('modal-gudang'); }
-        function actionCopy(bName, fIdx) { navigator.clipboard.writeText(db[bName][fIdx].content); const toast = document.getElementById('v-toast'); toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 2000); }
-        function saveDB() { localStorage.setItem('onyx_storage_v31', JSON.stringify(db)); }
-        function toggleFolder(id) { const el = document.getElementById(`folder-${id}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function switchTab(index) { activeTabIndex = index; editor.setValue(tabs[index].content, -1); renderTabs(); }
+        function removeTab(e, index) { e.stopPropagation(); if (tabs.length > 1) { tabs.splice(index, 1); switchTab(0); } }
+        function addTab() { const name = document.getElementById('new-filename').value || 'file.html'; tabs.push({ name: name, content: '' }); document.getElementById('new-filename').value = ''; closeModal('modal-new'); switchTab(tabs.length - 1); }
+        function runFullCode() { const container = document.getElementById('preview-container'); const frame = document.getElementById('preview-frame'); container.style.display = 'flex'; const blob = new Blob([editor.getValue()], { type: 'text/html' }); frame.src = URL.createObjectURL(blob); }
+        function closePreview() { document.getElementById('preview-container').style.display = 'none'; }
+        function toggleSearch() { const bar = document.getElementById('custom-search-bar'); bar.style.display = (bar.style.display === 'flex') ? 'none' : 'flex'; }
+        function findNext(fromInput = false) { editor.find(document.getElementById('search-field').value, { backwards: false, wrap: true }); }
+        function findPrev() { editor.find(document.getElementById('search-field').value, { backwards: true, wrap: true }); }
+        function insertCode(char) { editor.insert(char); }
+        function openFromInternal() { document.getElementById('internal-file-input').click(); }
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (ev) => { tabs.push({ name: file.name, content: ev.target.result }); switchTab(tabs.length - 1); showOnyxToast("📂 BERKAS DIIMPOR"); };
+            reader.readAsText(file);
+        }
+        function clearCurrentEditor() { editor.setValue(""); closeModal('modal-delete'); showOnyxToast("🗑️ EDITOR DIBERSIHKAN"); }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; if(id === 'modal-gudang') renderGudangList(); }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function syncScroll() { document.getElementById('highlighting').scrollTop = document.getElementById('main-scroll').scrollTop; document.getElementById('line-nums').scrollTop = document.getElementById('main-scroll').scrollTop; }
-        function executeRun() { const code = document.getElementById('editor').value; const frame = document.createElement('iframe'); const overlay = document.createElement('div'); overlay.style.position = 'fixed'; overlay.style.inset = '0'; overlay.style.zIndex = '1000'; overlay.style.background = 'white'; overlay.innerHTML = '<button onclick="this.parentElement.remove()" style="position:fixed; bottom:30px; right:30px; background:#ff4444; color:white; padding:15px 25px; border-radius:50px; font-weight:900; z-index:1001; font-size:10px; text-transform:uppercase;">Tutup</button>'; frame.style.width = '100%'; frame.style.height = '100%'; frame.style.border = 'none'; overlay.appendChild(frame); document.body.appendChild(overlay); const doc = frame.contentWindow.document; doc.open(); doc.write(code); doc.close(); }
-        function executeClearAll() { document.getElementById('editor').value = ''; updateCore(); closeModal('modal-confirm-clear'); }
-        function executeAddNewFile() { const n = document.getElementById('input-new-filename').value.trim(); if(n) { projects.push({name: n.toUpperCase(), content:''}); currentIdx = projects.length - 1; renderTabs(); switchTab(currentIdx); document.getElementById('input-new-filename').value = ''; closeModal('modal-new-file'); } }
-        function showGudang() { renderGudang(); openModal('modal-gudang'); }
-        function startSaveFlow() { document.getElementById('input-filename').value = projects[currentIdx].name; openModal('modal-save-name'); }
-        function saveStep2() { closeModal('modal-save-name'); renderHistory(); openModal('modal-save-berkas'); }
-        function renderHistory() { document.getElementById('berkas-history').innerHTML = Object.keys(db).map(k => `<div onclick="document.getElementById('input-berkasname').value='${k}'" class="p-3 text-[10px] text-gray-400 border-b border-gray-900 uppercase font-bold italic">📁 ${k}</div>`).join(''); }
-        function executeFinalSave() { const b = document.getElementById('input-berkasname').value.toUpperCase(); if(!b) return; projects[currentIdx].name = document.getElementById('input-filename').value.toUpperCase(); db[b] = JSON.parse(JSON.stringify(projects)); saveDB(); closeModal('modal-save-berkas'); }
-        function switchTab(i) { currentIdx = i; document.getElementById('editor').value = projects[i].content; renderTabs(); updateCore(); }
-        function handleTab(e) { if(e.key === 'Tab') { e.preventDefault(); insertSymbol('    '); } }
-        function downloadFile() { const blob = new Blob([document.getElementById('editor').value], {type: 'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = projects[currentIdx].name.toLowerCase(); a.click(); }
+        function changeTheme() { themeIndex = (themeIndex + 1) % themes.length; editor.setTheme("ace/theme/" + themes[themeIndex]); showOnyxToast(`🎨 TEMA: ${themes[themeIndex].toUpperCase()}`); }
+        function hideBrowserUI() { if (document.activeElement.tagName !== "INPUT" && !document.activeElement.classList.contains('ace_text-input')) window.scrollTo(0, 1); }
 
-        updateCore(); renderTabs();
+        // --- TAMBAHAN FITUR PWA (TIDAK MENGGANGGU CODE ASLI) ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(() => {
+                    console.log('Onyx PWA Ready!');
+                });
+            });
+        }
+        window.onbeforeunload = function() { return "Pastikan kodemu sudah tersimpan di Gudang Berkas!"; };
+
+        renderTabs();
+        editor.setValue(tabs[activeTabIndex].content, -1);
     </script>
 </body>
 </html>
+
