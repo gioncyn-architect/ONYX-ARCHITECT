@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Onyx Architect Pro – Vivi Gioncyn</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Cinzel:wght@700&family=Playball&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ace.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ext-language_tools.min.js"></script>
+<style>
+/* ── RESET & VARS ── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#060810;
+  --surface:#0d1117;
+  --surface2:#161b22;
+  --surface3:#1c2128;
+  --border:#21262d;
+  --border2:#30363d;
+  --text:#c9d1d9;
+  --muted:#8b949e;
+  --accent:#58a6ff;
+  --gold:#d4af37;
+  --html:#f97316;
+  --css:#38bdf8;
+  --js:#facc15;
+  --green:#3fb950;
+  --red:#f85149;
+  --radius:6px;
+  --header-h:48px;
+  --tabs-h:36px;
+  --toolbar-h:42px;
+  --footer-h:50px;
+}
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  background:var(--bg);color:var(--text);
+  font-family:'Fira Code',monospace;
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;
+}
+
+/* ── HEADER ── */
+header{
+  height:var(--header-h);
+  background:var(--surface);
+  border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:0 12px;
+  flex-shrink:0;
+  z-index:100;
+}
+.brand{display:flex;flex-direction:column;gap:1px}
+.brand-name{
+  font-family:'Cinzel',serif;font-size:12px;font-weight:700;
+  letter-spacing:2px;
+  background:linear-gradient(90deg,#d4af37,#fff8dc,#d4af37);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.brand-by{font-family:'Playball',cursive;font-size:9px;color:#aaa;letter-spacing:.3px}
+.header-right{display:flex;gap:6px;align-items:center}
+
+/* Header buttons */
+.hbtn{
+  height:30px;padding:0 10px;border-radius:var(--radius);
+  font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  border:none;cursor:pointer;display:flex;align-items:center;gap:4px;
+  transition:opacity .15s;font-family:'Fira Code',monospace;
+}
+.hbtn:active{opacity:.7}
+.btn-theme{background:var(--surface3);color:var(--accent);border:1px solid var(--border2)}
+.btn-save{background:var(--surface3);color:var(--green);border:1px solid var(--border2)}
+.btn-run{
+  background:linear-gradient(135deg,#1a56db,#3b82f6);
+  color:#fff;font-size:10px;padding:0 16px;
+  box-shadow:0 0 14px rgba(59,130,246,.35);
+}
+
+/* ── EDITOR TABS (Mobile: switch HTML/CSS/JS) ── */
+#editor-tabs{
+  height:var(--tabs-h);
+  background:var(--surface);
+  border-bottom:1px solid var(--border2);
+  display:flex;align-items:stretch;
+  flex-shrink:0;
+  overflow-x:auto;scrollbar-width:none;
+}
+#editor-tabs::-webkit-scrollbar{display:none}
+.etab{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  gap:6px;font-size:10px;font-weight:700;letter-spacing:.8px;
+  color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .15s;min-width:80px;
+  user-select:none;
+}
+.etab:active{background:var(--surface3)}
+.etab.active-html{color:var(--html);border-bottom-color:var(--html);background:rgba(249,115,22,.06)}
+.etab.active-css{color:var(--css);border-bottom-color:var(--css);background:rgba(56,189,248,.06)}
+.etab.active-js{color:var(--js);border-bottom-color:var(--js);background:rgba(250,204,21,.06)}
+.etab.active-preview{color:var(--green);border-bottom-color:var(--green);background:rgba(63,185,80,.06)}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-html{background:var(--html)}
+.dot-css{background:var(--css)}
+.dot-js{background:var(--js)}
+.dot-prev{background:var(--green)}
+
+/* ── WORKSPACE ── */
+#workspace{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;
+}
+
+/* ─ Desktop: 3 panels + preview ─ */
+.desktop-layout{
+  display:flex;flex-direction:column;flex:1;overflow:hidden;
+}
+.panels-row{
+  display:flex;flex:0 0 50%;overflow:hidden;
+  border-bottom:3px solid var(--border2);
+}
+.panel{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+  border-right:1px solid var(--border2);
+}
+.panel:last-child{border-right:none}
+.panel-header{
+  height:28px;background:var(--surface2);
+  display:flex;align-items:center;padding:0 12px;gap:7px;
+  border-bottom:1px solid var(--border2);flex-shrink:0;
+}
+.panel-label{font-size:9px;font-weight:800;letter-spacing:1.5px}
+.label-html{color:var(--html)}
+.label-css{color:var(--css)}
+.label-js{color:var(--js)}
+.panel-editor{flex:1;overflow:hidden}
+
+/* Preview area */
+.preview-area{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;background:#fff;
+}
+.preview-bar{
+  height:28px;background:var(--surface2);
+  display:flex;align-items:center;padding:0 12px;
+  border-bottom:1px solid var(--border2);gap:8px;flex-shrink:0;
+}
+.preview-bar-label{font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--green)}
+.preview-bar-url{
+  flex:1;background:var(--surface3);border:1px solid var(--border);
+  color:var(--muted);padding:0 8px;height:18px;border-radius:10px;
+  font-size:8px;display:flex;align-items:center;overflow:hidden;white-space:nowrap;
+}
+.prev-btn-sm{
+  background:var(--surface3);border:1px solid var(--border2);
+  color:var(--text);padding:2px 7px;border-radius:4px;
+  font-size:9px;font-weight:700;cursor:pointer;
+}
+#preview-frame{
+  flex:1;width:100%;border:none;background:#fff;
+}
+
+/* ─ Mobile: single editor panel ─ */
+.mobile-layout{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+}
+.mobile-editor{flex:1;overflow:hidden}
+.mobile-preview{flex:1;overflow:hidden;background:#fff}
+
+/* ── QUICK TOOLBAR ── */
+#toolbar{
+  height:var(--toolbar-h);
+  background:var(--surface);
+  border-top:1px solid var(--border2);
+  display:flex;align-items:center;
+  gap:4px;padding:0 6px;
+  overflow-x:auto;scrollbar-width:none;
+  flex-shrink:0;
+}
+#toolbar::-webkit-scrollbar{display:none}
+.tbtn{
+  height:30px;min-width:30px;padding:0 7px;
+  background:var(--surface3);border:1px solid var(--border2);
+  color:var(--text);border-radius:5px;
+  font-size:13px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:background .1s;
+  font-family:'Fira Code',monospace;
+}
+.tbtn:active{background:var(--border2)}
+.tbtn-snippet{
+  font-size:9px;font-weight:800;letter-spacing:.5px;
+  min-width:fit-content;
+  color:var(--accent);border-color:rgba(88,166,255,.3);
+  background:rgba(88,166,255,.08);
+}
+
+/* ── STATUS BAR ── */
+#statusbar{
+  height:20px;background:var(--accent);
+  display:flex;align-items:center;padding:0 10px;gap:10px;
+  flex-shrink:0;
+}
+#statusbar span{font-size:8px;font-weight:700;color:#000;letter-spacing:.5px}
+.sb-right{margin-left:auto;display:flex;gap:10px}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(0);
+  background:var(--surface2);border:1px solid var(--gold);
+  color:#fff;padding:9px 18px;border-radius:30px;
+  font-size:10px;font-weight:700;z-index:9999;
+  pointer-events:none;opacity:0;transition:opacity .2s,transform .2s;
+  white-space:nowrap;letter-spacing:.5px;text-transform:uppercase;
+  box-shadow:0 4px 24px rgba(0,0,0,.7);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+/* ── MODALS ── */
+.modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.8);z-index:8000;
+  align-items:center;justify-content:center;
+  padding:16px;backdrop-filter:blur(6px);
+}
+.modal.open{display:flex}
+.mbox{
+  background:var(--surface2);border:1px solid var(--gold);
+  border-radius:14px;padding:20px;
+  width:100%;max-width:320px;
+  box-shadow:0 20px 60px rgba(0,0,0,.8);
+}
+.mtitle{
+  font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  color:#fff;text-align:center;margin-bottom:16px;
+}
+.minput{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  color:#fff;padding:9px 12px;border-radius:var(--radius);
+  font-size:12px;outline:none;margin-bottom:10px;
+  font-family:'Fira Code',monospace;transition:border .15s;
+}
+.minput:focus{border-color:var(--accent)}
+.mbtn{
+  width:100%;padding:11px;border-radius:var(--radius);
+  font-size:10px;font-weight:900;border:none;cursor:pointer;
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;
+  font-family:'Fira Code',monospace;transition:opacity .15s;
+}
+.mbtn:active{opacity:.8}
+.mbtn-primary{background:linear-gradient(135deg,#1a56db,#3b82f6);color:#fff}
+.mbtn-success{background:linear-gradient(135deg,#166534,#22c55e);color:#fff}
+.mbtn-danger{background:linear-gradient(135deg,#7f1d1d,#ef4444);color:#fff}
+.mbtn-ghost{background:none;color:var(--muted);border:1px solid var(--border2)}
+
+/* ── GUDANG ── */
+.gudang-scroll{max-height:260px;overflow-y:auto;margin-top:6px;scrollbar-width:thin}
+.gfolder{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius);margin-top:6px;overflow:hidden;
+}
+.gfolder-head{
+  padding:9px 12px;cursor:pointer;display:flex;
+  align-items:center;gap:8px;
+  transition:background .15s;
+}
+.gfolder-head:hover{background:var(--surface3)}
+.gfolder-name{font-size:10px;font-weight:700;color:#fff;flex:1}
+.gbadge{
+  background:var(--surface3);color:var(--muted);
+  font-size:8px;padding:2px 6px;border-radius:10px;
+}
+.gfiles{display:none;border-top:1px solid var(--border)}
+.gfile{
+  padding:8px 12px;display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);
+  transition:background .1s;
+}
+.gfile:last-child{border-bottom:none}
+.gfile:hover{background:var(--surface3)}
+.gfile-info{flex:1;min-width:0}
+.gfile-name{font-size:10px;color:#fff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gfile-date{font-size:8px;color:var(--muted);margin-top:1px}
+.gfile-actions{display:flex;gap:4px}
+.gfbtn{
+  background:var(--surface3);border:1px solid var(--border2);
+  color:var(--text);width:26px;height:26px;border-radius:4px;
+  font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+
+/* ── FILE INPUT ── */
+#file-input{display:none}
+
+/* ── RESIZE HANDLE ── */
+.resize-handle{
+  height:5px;background:var(--border2);cursor:row-resize;
+  flex-shrink:0;transition:background .15s;
+  display:flex;align-items:center;justify-content:center;
+}
+.resize-handle:hover{background:var(--accent)}
+.resize-dots{display:flex;gap:3px}
+.resize-dots span{width:3px;height:3px;border-radius:50%;background:var(--muted)}
+
+/* ── RESPONSIVE ── */
+@media(min-width:640px){
+  .mobile-layout{display:none!important}
+  #editor-tabs{display:none!important}
+}
+@media(max-width:639px){
+  .desktop-layout{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="brand">
+    <span class="brand-name">Onyx Architect Pro</span>
+    <span class="brand-by">by Vivi Gioncyn</span>
+  </div>
+  <div class="header-right">
+    <button class="hbtn btn-theme" onclick="cycleTheme()">🎨 Tema</button>
+    <button class="hbtn btn-save" onclick="openModal('m-save')">💾 Simpan</button>
+    <button class="hbtn btn-run" onclick="runPreview()">▶ RUN</button>
+  </div>
+</header>
+
+<!-- ══ MOBILE TABS (only on small screen) ══ -->
+<div id="editor-tabs">
+  <div class="etab active-html" id="tab-html" onclick="mobileSwitch('html')">
+    <span class="dot dot-html"></span> HTML
+  </div>
+  <div class="etab" id="tab-css" onclick="mobileSwitch('css')">
+    <span class="dot dot-css"></span> CSS
+  </div>
+  <div class="etab" id="tab-js" onclick="mobileSwitch('js')">
+    <span class="dot dot-js"></span> JS
+  </div>
+  <div class="etab" id="tab-preview" onclick="mobileSwitch('preview')">
+    <span class="dot dot-prev"></span> Preview
+  </div>
+</div>
+
+<!-- ══ WORKSPACE ══ -->
+<div id="workspace">
+
+  <!-- ─ DESKTOP LAYOUT ─ -->
+  <div class="desktop-layout">
+    <div class="panels-row" id="panels-row">
+      <!-- HTML Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="dot dot-html"></span>
+          <span class="panel-label label-html">HTML</span>
+        </div>
+        <div class="panel-editor" id="ed-html"></div>
+      </div>
+      <!-- CSS Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="dot dot-css"></span>
+          <span class="panel-label label-css">CSS</span>
+        </div>
+        <div class="panel-editor" id="ed-css"></div>
+      </div>
+      <!-- JS Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="dot dot-js"></span>
+          <span class="panel-label label-js">JS</span>
+        </div>
+        <div class="panel-editor" id="ed-js"></div>
+      </div>
+    </div>
+
+    <!-- Resize Handle -->
+    <div class="resize-handle" id="resize-handle">
+      <div class="resize-dots">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-area" id="preview-area">
+      <div class="preview-bar">
+        <span class="preview-bar-label">⚡ PREVIEW</span>
+        <div class="preview-bar-url" id="prev-url">onyx://preview</div>
+        <button class="prev-btn-sm" onclick="runPreview()">↺</button>
+        <button class="prev-btn-sm" onclick="openFullPreview()">⛶</button>
+      </div>
+      <iframe id="preview-frame" sandbox="allow-scripts allow-modals allow-forms"></iframe>
+    </div>
+  </div>
+
+  <!-- ─ MOBILE LAYOUT ─ -->
+  <div class="mobile-layout">
+    <div class="mobile-editor" id="mobile-editor-wrap">
+      <div id="ed-mobile" style="width:100%;height:100%"></div>
+    </div>
+    <div class="mobile-preview" id="mobile-preview-wrap" style="display:none;flex-direction:column">
+      <iframe id="mobile-preview-frame" sandbox="allow-scripts allow-modals allow-forms" style="flex:1;width:100%;border:none;background:#fff"></iframe>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ QUICK TOOLBAR ══ -->
+<div id="toolbar">
+  <button class="tbtn" onclick="ins('<')">&lt;</button>
+  <button class="tbtn" onclick="ins('>')">&gt;</button>
+  <button class="tbtn" onclick="ins('/')">/</button>
+  <button class="tbtn" onclick="ins('=')">=</button>
+  <button class="tbtn" onclick="ins('\"')">"</button>
+  <button class="tbtn" onclick="ins('{')"><b>{</b></button>
+  <button class="tbtn" onclick="ins('}')"><b>}</b></button>
+  <button class="tbtn" onclick="ins('(')">( </button>
+  <button class="tbtn" onclick="ins(')')"> )</button>
+  <button class="tbtn" onclick="ins(';')">;</button>
+  <button class="tbtn" onclick="ins(':')">:</button>
+  <button class="tbtn" onclick="ins('  ')">⇥</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('div')">div</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('span')">span</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('p')">p</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('a')">a</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('img')">img</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('ul')">ul/li</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('input')">input</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('btn')">button</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('fn')">fn(){}</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('flex')">flex</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('media')">@media</button>
+  <button class="tbtn tbtn-snippet" onclick="snippet('var')">var()</button>
+</div>
+
+<!-- ══ STATUS BAR ══ -->
+<div id="statusbar">
+  <span id="sb-file">●  Untitled</span>
+  <div class="sb-right">
+    <span id="sb-pos">Ln 1, Col 1</span>
+    <span id="sb-chars">0 chars</span>
+  </div>
+</div>
+
+<!-- ══ FULL PREVIEW (Fullscreen Overlay) ══ -->
+<div id="full-preview" style="display:none;position:fixed;inset:0;z-index:5000;flex-direction:column;background:#fff">
+  <div style="height:44px;background:var(--surface);border-bottom:1px solid var(--border2);
+    display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0">
+    <span style="font-size:9px;font-weight:800;letter-spacing:1px;color:var(--muted)">◈ ONYX PREVIEW ENGINE</span>
+    <div style="flex:1;background:var(--surface3);border:1px solid var(--border);
+      color:var(--muted);padding:0 10px;height:22px;border-radius:11px;
+      font-size:9px;display:flex;align-items:center;overflow:hidden" id="full-url">onyx://preview</div>
+    <button onclick="closeFullPreview()" style="background:var(--red);border:none;color:#fff;
+      padding:5px 14px;border-radius:5px;font-size:9px;font-weight:800;cursor:pointer">✕ TUTUP</button>
+  </div>
+  <iframe id="full-preview-frame" sandbox="allow-scripts allow-modals allow-forms"
+    style="flex:1;width:100%;border:none;background:#fff"></iframe>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Save -->
+<div class="modal" id="m-save">
+  <div class="mbox">
+    <div class="mtitle">💾 Simpan Proyek</div>
+    <input class="minput" id="save-name" placeholder="nama-proyek" />
+    <button class="mbtn mbtn-success" onclick="saveToGudang()">📦 Simpan ke Gudang</button>
+    <button class="mbtn mbtn-primary" onclick="saveToDevice()">📱 Unduh ke Perangkat</button>
+    <button class="mbtn mbtn-ghost" onclick="closeModal('m-save')">Batal</button>
+  </div>
+</div>
+
+<!-- Gudang -->
+<div class="modal" id="m-gudang">
+  <div class="mbox" style="max-width:360px">
+    <div class="mtitle">📦 Gudang Berkas</div>
+    <input class="minput" id="gudang-search" placeholder="🔍 Cari..." oninput="filterGudang()"/>
+    <div id="gudang-list" class="gudang-scroll"></div>
+    <button class="mbtn mbtn-ghost" style="margin-top:10px" onclick="closeModal('m-gudang')">Tutup</button>
+  </div>
+</div>
+
+<!-- Buka File -->
+<div class="modal" id="m-open">
+  <div class="mbox">
+    <div class="mtitle">📂 Buka File</div>
+    <button class="mbtn mbtn-primary" onclick="triggerFileOpen()">📁 Pilih File dari Perangkat</button>
+    <button class="mbtn mbtn-success" onclick="closeModal('m-open');openModal('m-gudang')">📦 Buka dari Gudang</button>
+    <button class="mbtn mbtn-ghost" onclick="closeModal('m-open')">Batal</button>
+  </div>
+</div>
+
+<!-- Hapus Konfirmasi -->
+<div class="modal" id="m-clear">
+  <div class="mbox">
+    <div class="mtitle" style="color:var(--red)">⚠️ Hapus Semua?</div>
+    <p style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:16px">Semua kode HTML, CSS, dan JS akan dihapus.</p>
+    <button class="mbtn mbtn-danger" onclick="clearAll()">Hapus Semua</button>
+    <button class="mbtn mbtn-ghost" onclick="closeModal('m-clear')">Batal</button>
+  </div>
+</div>
+
+<!-- More Menu -->
+<div class="modal" id="m-more">
+  <div class="mbox">
+    <div class="mtitle">⚙️ Menu</div>
+    <button class="mbtn mbtn-primary" onclick="closeModal('m-more');openModal('m-open')">📂 Buka File</button>
+    <button class="mbtn mbtn-primary" onclick="closeModal('m-more');openModal('m-gudang')">📦 Gudang Berkas</button>
+    <button class="mbtn" style="background:var(--surface3);color:var(--text);border:1px solid var(--border2)" onclick="formatAll();closeModal('m-more')">✨ Format Semua Kode</button>
+    <button class="mbtn mbtn-danger" onclick="closeModal('m-more');openModal('m-clear')">🗑️ Hapus Semua</button>
+    <button class="mbtn mbtn-ghost" onclick="closeModal('m-more')">Tutup</button>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept=".html,.css,.js,.txt,.json" onchange="handleFile(event)" multiple>
+
+<script>
+/* ════════════════════════════════════════
+   ONYX ARCHITECT PRO v6
+   Clean CodePen-Style Engine
+   ════════════════════════════════════════ */
+
+// ── THEMES ──
+const THEMES = [
+  'tomorrow_night_bright','monokai','dracula',
+  'nord_dark','github_dark','solarized_dark','one_dark'
+];
+let themeIdx = 0;
+
+// ── STATE ──
+const STATE_KEY = 'onyx_v6_state';
+const GUDANG_KEY = 'onyx_v6_gudang';
+let gudang = {};
+let mobileActive = 'html'; // which panel on mobile
+
+// ── LOAD STATE ──
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STATE_KEY) || '{}');
+    return {
+      html: s.html || DEFAULT_HTML,
+      css:  s.css  || DEFAULT_CSS,
+      js:   s.js   || DEFAULT_JS,
+      name: s.name || 'Untitled',
+      theme: s.theme || 0
+    };
+  } catch { return { html: DEFAULT_HTML, css: DEFAULT_CSS, js: DEFAULT_JS, name: 'Untitled', theme: 0 }; }
+}
+
+function saveState() {
+  localStorage.setItem(STATE_KEY, JSON.stringify({
+    html: edHtml.getValue(),
+    css:  edCss.getValue(),
+    js:   edJs.getValue(),
+    name: currentName,
+    theme: themeIdx
+  }));
+}
+
+function loadGudang() {
+  try { gudang = JSON.parse(localStorage.getItem(GUDANG_KEY) || '{}'); }
+  catch { gudang = {}; }
+}
+
+function saveGudang() {
+  localStorage.setItem(GUDANG_KEY, JSON.stringify(gudang));
+}
+
+// ── DEFAULTS ──
+const DEFAULT_HTML = `<div class="card">
+  <h1>✦ Onyx Architect Pro</h1>
+  <p>Edit HTML, CSS & JS — lalu tekan <strong>RUN</strong> 🚀</p>
+  <button onclick="greet()">Klik Aku!</button>
+</div>`;
+
+const DEFAULT_CSS = `* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #060810;
+  font-family: 'Fira Code', monospace;
+}
+
+.card {
+  background: #0d1117;
+  border: 1px solid #58a6ff;
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  color: #c9d1d9;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 0 40px rgba(88,166,255,0.15);
+}
+
+h1 {
+  font-size: 1.4rem;
+  color: #58a6ff;
+  margin-bottom: .8rem;
+}
+
+p { font-size: .85rem; line-height: 1.6; margin-bottom: 1.2rem; }
+
+button {
+  background: linear-gradient(135deg,#1a56db,#3b82f6);
+  color: white;
+  border: none;
+  padding: .6rem 1.6rem;
+  border-radius: 20px;
+  font-size: .85rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity .2s;
+}
+button:hover { opacity: .85; }`;
+
+const DEFAULT_JS = `function greet() {
+  alert('Halo dari Onyx Architect Pro! 🔥');
+}
+
+console.log('✦ Onyx v6 Ready!');`;
+
+// ── INIT EDITORS ──
+function makeEditor(id, mode, placeholder) {
+  const ed = ace.edit(id);
+  ed.setTheme('ace/theme/tomorrow_night_bright');
+  ed.session.setMode(`ace/mode/${mode}`);
+  ed.setOptions({
+    enableBasicAutocompletion: true,
+    enableLiveAutocompletion: true,
+    showPrintMargin: false,
+    wrap: false,
+    tabSize: 2,
+    useSoftTabs: true,
+    scrollPastEnd: .4,
+    fontSize: 13,
+  });
+  ed.renderer.setScrollMargin(4, 4, 0, 0);
+  return ed;
+}
+
+const edHtml = makeEditor('ed-html', 'html');
+const edCss  = makeEditor('ed-css',  'css');
+const edJs   = makeEditor('ed-js',   'javascript');
+const edMobile = makeEditor('ed-mobile', 'html');
+
+// Load initial state
+const initState = loadState();
+loadGudang();
+themeIdx = initState.theme || 0;
+let currentName = initState.name;
+
+edHtml.setValue(initState.html, -1);
+edCss.setValue(initState.css,   -1);
+edJs.setValue(initState.js,     -1);
+edMobile.setValue(initState.html, -1);
+
+applyTheme(themeIdx);
+updateStatus();
+
+// Auto-save & auto-preview on change
+let previewTimer;
+function onEditorChange() {
+  syncMobile();
+  saveState();
+  updateStatus();
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(runPreview, 800);
+}
+edHtml.on('change', onEditorChange);
+edCss.on('change', onEditorChange);
+edJs.on('change', onEditorChange);
+
+edHtml.selection.on('changeCursor', updateStatus);
+edCss.selection.on('changeCursor', updateStatus);
+edJs.selection.on('changeCursor', updateStatus);
+
+// ── PREVIEW ──
+let blobUrl = null;
+
+function buildHTML() {
+  return `<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+${edCss.getValue()}
+</style>
+</head>
+<body>
+${edHtml.getValue()}
+<script>
+(function(){
+  var _log = console.log, _err = console.error, _warn = console.warn;
+  try {
+${edJs.getValue()}
+  } catch(e) {
+    document.body.insertAdjacentHTML('beforeend',
+      '<div style="position:fixed;bottom:0;left:0;right:0;background:#7f1d1d;color:#fca5a5;'+
+      'font-family:monospace;font-size:11px;padding:8px 12px;z-index:9999">'+
+      '❌ '+e.message+'</div>');
+    _err(e);
+  }
+})();
+<\/script>
+</body>
+</html>`;
+}
+
+function runPreview() {
+  const html = buildHTML();
+  if (blobUrl) URL.revokeObjectURL(blobUrl);
+  blobUrl = URL.createObjectURL(new Blob([html], {type:'text/html'}));
+
+  // Desktop preview
+  const frame = document.getElementById('preview-frame');
+  if (frame) frame.src = blobUrl;
+
+  // Mobile preview (if active)
+  const mFrame = document.getElementById('mobile-preview-frame');
+  if (mFrame && mobileActive === 'preview') mFrame.src = blobUrl;
+
+  document.getElementById('prev-url').textContent = `onyx://preview/${currentName}`;
+}
+
+function openFullPreview() {
+  runPreview();
+  const fp = document.getElementById('full-preview');
+  const ff = document.getElementById('full-preview-frame');
+  fp.style.display = 'flex';
+  ff.src = blobUrl;
+  document.getElementById('full-url').textContent = `onyx://preview/${currentName}`;
+}
+
+function closeFullPreview() {
+  document.getElementById('full-preview').style.display = 'none';
+}
+
+// ── MOBILE SWITCH ──
+function mobileSwitch(panel) {
+  mobileActive = panel;
+  const edWrap = document.getElementById('mobile-editor-wrap');
+  const prevWrap = document.getElementById('mobile-preview-wrap');
+  const tabs = ['html','css','js','preview'];
+
+  // Reset all tabs
+  tabs.forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) { el.className = 'etab'; }
+  });
+
+  // Activate selected tab
+  const activeEl = document.getElementById('tab-'+panel);
+  if (activeEl) activeEl.className = `etab active-${panel}`;
+
+  if (panel === 'preview') {
+    edWrap.style.display = 'none';
+    prevWrap.style.display = 'flex';
+    runPreview();
+    const mFrame = document.getElementById('mobile-preview-frame');
+    if (mFrame && blobUrl) mFrame.src = blobUrl;
+  } else {
+    edWrap.style.display = 'flex';
+    prevWrap.style.display = 'none';
+    // Sync mobile editor to selected panel
+    const valMap = { html: edHtml.getValue(), css: edCss.getValue(), js: edJs.getValue() };
+    const modeMap = { html:'html', css:'css', js:'javascript' };
+    edMobile.setValue(valMap[panel], -1);
+    edMobile.session.setMode(`ace/mode/${modeMap[panel]}`);
+
+    // When mobile editor changes, update the right panel
+    edMobile.off('change', mobileChangeHandler);
+    mobileChangeHandler = function() {
+      const v = edMobile.getValue();
+      if (mobileActive === 'html') { edHtml.off('change', onEditorChange); edHtml.setValue(v,-1); edHtml.on('change', onEditorChange); }
+      if (mobileActive === 'css')  { edCss.off('change', onEditorChange);  edCss.setValue(v,-1);  edCss.on('change', onEditorChange); }
+      if (mobileActive === 'js')   { edJs.off('change', onEditorChange);   edJs.setValue(v,-1);   edJs.on('change', onEditorChange); }
+      saveState();
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(runPreview, 800);
+    };
+    edMobile.on('change', mobileChangeHandler);
+  }
+}
+
+let mobileChangeHandler = function(){};
+
+function syncMobile() {
+  // Keep mobile editor in sync if needed (avoid loops)
+  if (document.getElementById('mobile-editor-wrap').style.display !== 'none') {
+    // do nothing — mobile drives its own panel
+  }
+}
+
+// ── SAVE ──
+function openSave() {
+  document.getElementById('save-name').value = currentName;
+  openModal('m-save');
+}
+
+function saveToGudang() {
+  const nameInput = document.getElementById('save-name').value.trim() || currentName;
+  // Strip any extension — gudang stores raw project data
+  const name = nameInput.replace(/\.(html|css|js)$/i, '') || 'Untitled';
+  currentName = name;
+  saveState();
+
+  if (!gudang[name]) gudang[name] = [];
+  const entry = {
+    name,
+    html: edHtml.getValue(),
+    css: edCss.getValue(),
+    js: edJs.getValue(),
+    date: new Date().toLocaleString('id-ID'),
+    size: edHtml.getValue().length + edCss.getValue().length + edJs.getValue().length
+  };
+  // Update if same name exists
+  const idx = gudang[name].findIndex(e => e.name === name);
+  if (idx >= 0) gudang[name][idx] = entry;
+  else gudang[name].push(entry);
+
+  saveGudang();
+  updateStatus();
+  closeModal('m-save');
+  toast(`✅ ${name} TERSIMPAN`);
+}
+
+function saveToDevice() {
+  const nameInput = document.getElementById('save-name').value.trim() || currentName;
+  const baseName = nameInput.replace(/\.(html|css|js)$/i, '') || 'project';
+  const html = buildHTML();
+
+  // ✅ FIX: Save as single combined .html — no extension duplication
+  const fileName = baseName.includes('.') ? baseName : `${baseName}.html`;
+  const blob = new Blob([html], { type: 'text/html' });
+
+  if ('showSaveFilePicker' in window) {
+    window.showSaveFilePicker({
+      suggestedName: fileName,
+      types: [{ description: 'HTML File', accept: { 'text/html': ['.html'] } }]
+    }).then(async handle => {
+      const w = await handle.createWritable();
+      await w.write(blob);
+      await w.close();
+      toast(`✅ ${fileName} DIUNDUH`);
+    }).catch(e => { if (e.name !== 'AbortError') fallbackDownload(blob, fileName); });
+  } else {
+    fallbackDownload(blob, fileName);
+  }
+  closeModal('m-save');
+}
+
+function fallbackDownload(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast(`📥 MENGUNDUH ${name}`);
+}
+
+// ── OPEN FILE ──
+function triggerFileOpen() {
+  document.getElementById('file-input').click();
+}
+
+function handleFile(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const ext = file.name.split('.').pop().toLowerCase();
+      const content = ev.target.result;
+      if (ext === 'html' || ext === 'htm') {
+        // Try to parse HTML/CSS/JS from file
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/html');
+        const styleEl = doc.querySelector('style');
+        const scriptEl = doc.querySelector('script:not([src])');
+        const body = doc.body ? doc.body.innerHTML : content;
+
+        if (styleEl || scriptEl) {
+          edHtml.setValue(cleanBodyHtml(body), -1);
+          edCss.setValue(styleEl ? styleEl.textContent.trim() : '', -1);
+          edJs.setValue(scriptEl ? scriptEl.textContent.trim() : '', -1);
+          toast('📂 FILE HTML DIURAI KE PANEL');
+        } else {
+          edHtml.setValue(content, -1);
+          toast(`📂 ${file.name} DIBUKA DI HTML`);
+        }
+      } else if (ext === 'css') {
+        edCss.setValue(content, -1);
+        toast(`📂 ${file.name} DIBUKA DI CSS`);
+      } else if (ext === 'js') {
+        edJs.setValue(content, -1);
+        toast(`📂 ${file.name} DIBUKA DI JS`);
+      }
+      currentName = file.name.replace(/\.(html|css|js)$/i, '');
+      updateStatus();
+      runPreview();
+    };
+    reader.readAsText(file);
+  });
+  closeModal('m-open');
+  e.target.value = '';
+}
+
+function cleanBodyHtml(body) {
+  // Remove style and script tags from body
+  return body
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .trim();
+}
+
+// ── GUDANG RENDER ──
+function renderGudang() {
+  const container = document.getElementById('gudang-list');
+  container.innerHTML = '';
+  const keys = Object.keys(gudang);
+  if (!keys.length) {
+    container.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:10px;padding:20px">Gudang kosong.<br>Simpan proyek dulu!</div>';
+    return;
+  }
+  keys.forEach(folder => {
+    const files = gudang[folder];
+    const wrap = document.createElement('div');
+    wrap.className = 'gfolder';
+    const head = document.createElement('div');
+    head.className = 'gfolder-head';
+    head.innerHTML = `<span>📁</span><span class="gfolder-name">${folder}</span><span class="gbadge">${files.length}</span>`;
+    head.onclick = () => {
+      const fc = wrap.querySelector('.gfiles');
+      fc.style.display = fc.style.display === 'block' ? 'none' : 'block';
+    };
+    const filesList = document.createElement('div');
+    filesList.className = 'gfiles';
+    files.forEach((f, i) => {
+      const size = f.size ? formatSize(f.size) : '';
+      const row = document.createElement('div');
+      row.className = 'gfile';
+      row.innerHTML = `
+        <div class="gfile-info">
+          <div class="gfile-name">◈ ${f.name}</div>
+          <div class="gfile-date">${f.date}${size ? ' · ' + size : ''}</div>
+        </div>
+        <div class="gfile-actions">
+          <button class="gfbtn" title="Buka" onclick="loadFromGudang('${esc(folder)}',${i})">🔓</button>
+          <button class="gfbtn" title="Unduh" onclick="dlFromGudang('${esc(folder)}',${i})">⬇️</button>
+          <button class="gfbtn" title="Hapus" onclick="delFromGudang('${esc(folder)}',${i})">🗑️</button>
+        </div>`;
+      filesList.appendChild(row);
+    });
+    wrap.appendChild(head);
+    wrap.appendChild(filesList);
+    container.appendChild(wrap);
+  });
+}
+
+function filterGudang() {
+  const q = document.getElementById('gudang-search').value.toLowerCase();
+  document.querySelectorAll('.gfolder').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function loadFromGudang(folder, i) {
+  const f = gudang[folder][i];
+  edHtml.setValue(f.html || '', -1);
+  edCss.setValue(f.css || '', -1);
+  edJs.setValue(f.js || '', -1);
+  currentName = f.name;
+  saveState();
+  updateStatus();
+  runPreview();
+  closeModal('m-gudang');
+  toast(`📂 ${f.name} DIBUKA`);
+}
+
+function dlFromGudang(folder, i) {
+  const f = gudang[folder][i];
+  const html = `<!DOCTYPE html>\n<html lang="id">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>${f.name}</title>\n<style>\n${f.css}\n</style>\n</head>\n<body>\n${f.html}\n<script>\n${f.js}\n<\/script>\n</body>\n</html>`;
+  // ✅ FIX: Correct filename — no double extension
+  const fname = f.name.includes('.') ? f.name : `${f.name}.html`;
+  fallbackDownload(new Blob([html], {type:'text/html'}), fname);
+}
+
+function delFromGudang(folder, i) {
+  if (!confirm(`Hapus "${gudang[folder][i].name}"?`)) return;
+  gudang[folder].splice(i, 1);
+  if (!gudang[folder].length) delete gudang[folder];
+  saveGudang();
+  renderGudang();
+  toast('🗑️ DIHAPUS');
+}
+
+// ── CLEAR ALL ──
+function clearAll() {
+  edHtml.setValue('', -1);
+  edCss.setValue('', -1);
+  edJs.setValue('', -1);
+  currentName = 'Untitled';
+  saveState();
+  runPreview();
+  closeModal('m-clear');
+  toast('🗑️ SEMUA DIHAPUS');
+}
+
+// ── FORMAT ──
+function formatAll() {
+  // Basic JSON format if JS looks like JSON
+  try {
+    const js = edJs.getValue().trim();
+    if (js.startsWith('{') || js.startsWith('[')) {
+      edJs.setValue(JSON.stringify(JSON.parse(js), null, 2), -1);
+    }
+  } catch {}
+  toast('✨ FORMAT SELESAI');
+}
+
+// ── SNIPPETS ──
+const SNIPS = {
+  div:   '<div class="">\n  \n</div>',
+  span:  '<span></span>',
+  p:     '<p></p>',
+  a:     '<a href="#" target="_blank"></a>',
+  img:   '<img src="" alt="" loading="lazy" />',
+  ul:    '<ul>\n  <li></li>\n  <li></li>\n</ul>',
+  input: '<input type="text" placeholder="" />',
+  btn:   '<button type="button"></button>',
+  fn:    'function myFunc() {\n  \n}',
+  flex:  'display: flex;\njustify-content: center;\nalign-items: center;',
+  media: '@media (max-width: 640px) {\n  \n}',
+  var:   'var(--)',
+};
+
+function ins(char) { activeEd().insert(char); activeEd().focus(); }
+function snippet(key) {
+  if (SNIPS[key]) { activeEd().insert(SNIPS[key]); activeEd().focus(); }
+}
+
+function activeEd() {
+  // On mobile, always use mobile editor
+  if (window.innerWidth < 640) return edMobile;
+  // On desktop, focus order
+  const focused = [edHtml, edCss, edJs].find(e => e.isFocused());
+  return focused || edHtml;
+}
+
+// ── THEME ──
+function applyTheme(idx) {
+  const t = `ace/theme/${THEMES[idx]}`;
+  [edHtml, edCss, edJs, edMobile].forEach(e => e.setTheme(t));
+}
+function cycleTheme() {
+  themeIdx = (themeIdx + 1) % THEMES.length;
+  applyTheme(themeIdx);
+  saveState();
+  toast(`🎨 ${THEMES[themeIdx].replace(/_/g,' ').toUpperCase()}`);
+}
+
+// ── STATUS BAR ──
+function updateStatus() {
+  document.getElementById('sb-file').textContent = `● ${currentName}`;
+  const ed = [edHtml, edCss, edJs, edMobile].find(e => e.isFocused()) || edHtml;
+  const pos = ed.getCursorPosition();
+  document.getElementById('sb-pos').textContent = `Ln ${pos.row+1}, Col ${pos.column+1}`;
+  const total = edHtml.getValue().length + edCss.getValue().length + edJs.getValue().length;
+  document.getElementById('sb-chars').textContent = `${total} chars`;
+}
+
+// ── MODAL HELPERS ──
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('open');
+  if (id === 'm-gudang') renderGudang();
+  if (id === 'm-save') {
+    document.getElementById('save-name').value = currentName;
+  }
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('open');
+}
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ── TOAST ──
+let toastT;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── RESIZE HANDLE (Desktop) ──
+(function setupResize() {
+  const handle = document.getElementById('resize-handle');
+  const panelsRow = document.getElementById('panels-row');
+  const previewArea = document.getElementById('preview-area');
+  const workspace = document.getElementById('workspace');
+  if (!handle) return;
+  let dragging = false, startY = 0, startTop = 0;
+
+  function getPercent(py) {
+    const total = workspace.offsetHeight;
+    const delta = py - startY;
+    const newTop = Math.max(20, Math.min(80, (startTop / total * 100) + (delta / total * 100)));
+    return newTop;
+  }
+
+  handle.addEventListener('mousedown', e => {
+    dragging = true;
+    startY = e.clientY;
+    startTop = panelsRow.offsetHeight;
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+  });
+  handle.addEventListener('touchstart', e => {
+    dragging = true;
+    startY = e.touches[0].clientY;
+    startTop = panelsRow.offsetHeight;
+  }, {passive:true});
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const pct = getPercent(e.clientY);
+    panelsRow.style.flex = `0 0 ${pct}%`;
+  });
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const pct = getPercent(e.touches[0].clientY);
+    panelsRow.style.flex = `0 0 ${pct}%`;
+  }, {passive:true});
+  document.addEventListener('mouseup', () => { dragging = false; document.body.style.cursor = ''; document.body.style.userSelect = ''; });
+  document.addEventListener('touchend', () => { dragging = false; });
+})();
+
+// ── KEYBOARD SHORTCUTS ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeFullPreview();
+    document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open'));
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); openSave(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runPreview(); }
+});
+
+// ── HELPERS ──
+function esc(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function formatSize(b) { return b < 1024 ? b+'B' : (b/1024).toFixed(1)+'KB'; }
+
+// ── PWA ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+window.onbeforeunload = () => 'Kode belum disimpan ke Gudang. Lanjutkan keluar?';
+
+// ── BOOT ──
+runPreview();
+setTimeout(() => {
+  [edHtml, edCss, edJs].forEach(e => e.resize());
+}, 100);
+
+console.log('%c✦ ONYX ARCHITECT PRO v6', 'color:#58a6ff;font-size:14px;font-weight:bold');
+</script>
+</body>
+</html>
